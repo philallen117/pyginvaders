@@ -1,0 +1,20 @@
+[flake8]
+# Match black's line length
+max-line-length = 88
+
+# Extend default ignore list to work with black
+extend-ignore = 
+    # Whitespace before ':' - black formats this
+    E203,
+    # Line break before binary operator - black's style
+    W503
+
+# Exclude common directories
+exclude = 
+    .git,
+    __pycache__,
+    .venv,
+    .eggs,
+    *.egg,
+    build,
+    dist

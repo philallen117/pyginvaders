@@ -33,3 +33,18 @@ uv run main.py
 - Follow flake8 linting rules
 - Add type annotations for better code clarity and pyrefly compatibility
 - Use pytest to run tests
+
+## Workflow
+
+This project has run `uv pip install -e .` to install the `pyginvaders` package in editable mode. The -e (editable) flag creates a link to the source directory, so changes to .py files are automatically picked up without reinstalling. After that:
+
+Don't need to reinstall:
+
+- When editing existing Python files (changes are immediately available)
+- When adding/modifying code in existing modules
+
+Do need to reinstall:
+
+- When you modify pyproject.toml (dependencies, metadata, etc.)
+- When you add new top-level packages or modules to the src structure
+- When you change entry points or package configuration
