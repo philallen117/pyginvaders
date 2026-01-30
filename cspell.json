@@ -1,0 +1,22 @@
+{
+    "version": "0.2",
+    "language": "en",
+    "words": [
+        "blit",
+        "Cypert",
+        "docstrings",
+        "pygame",
+        "pyginvaders",
+        "pytest",
+        "pycache",
+        "pyproject",
+        "venv"
+    ],
+    "ignorePaths": [
+        ".git",
+        ".venv",
+        "__pycache__",
+        "*.pyc",
+        "uv.lock"
+    ]
+}
