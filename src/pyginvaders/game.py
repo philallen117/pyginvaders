@@ -2,6 +2,8 @@
 
 import pygame
 
+from pyginvaders.player import Player
+
 
 class Game:
     """Main game class that manages the game state and loop."""
@@ -16,10 +18,10 @@ class Game:
         self.clock = pygame.time.Clock()
         self.running = False
 
-        # Setup font and text
-        self.font = pygame.font.SysFont(None, 48)
-        self.text = self.font.render("Welcome to PygInvaders", True, (255, 255, 255))
-        self.text_rect = self.text.get_rect(center=(self.width // 2, self.height // 2))
+        # Create player at bottom center of screen
+        player_x = self.width // 2 - 25  # Center the 50-wide player
+        player_y = self.height - 60  # 60 pixels from bottom
+        self.player = Player(player_x, player_y)
 
     def run(self) -> None:
         """Start the game loop."""
@@ -30,11 +32,21 @@ class Game:
                 if event.type == pygame.QUIT:
                     self.running = False
 
+            # Handle continuous key presses
+            keys = pygame.key.get_pressed()
+            if keys[pygame.K_LEFT]:
+                self.player.move_left()
+            if keys[pygame.K_RIGHT]:
+                self.player.move_right()
+
+            # Keep player within bounds
+            self.player.clamp_to_bounds(self.width)
+
             # Fill screen with black
             self.screen.fill((0, 0, 0))
 
-            # Draw centered text
-            self.screen.blit(self.text, self.text_rect)
+            # Draw player
+            self.player.draw(self.screen)
 
             # Update display
             pygame.display.flip()
