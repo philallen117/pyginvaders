@@ -1,0 +1,1 @@
+Make a folder structure that separates source files from test files, for a single app with several modules but no additional packages. The folder structure should be suitable for use with uv, black, flake8, pyrefly.
