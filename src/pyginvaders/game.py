@@ -4,6 +4,7 @@ import pygame
 
 from pyginvaders.config import (
     FPS,
+    GAME_OVER_TEXT_FONT_POINT_SIZE,
     INVADER_BULLET_POOL_SIZE,
     INVADER_COLS,
     INVADER_DROP_DISTANCE,
@@ -88,6 +89,7 @@ class Game:
         # Score
         self.score = 0
         self.font = pygame.font.Font(None, SCORE_TEXT_FONT_POINT_SIZE)
+        self.game_over_font = pygame.font.Font(None, GAME_OVER_TEXT_FONT_POINT_SIZE)
 
         # Game state
         self.game_lost = False
@@ -103,6 +105,53 @@ class Game:
                 bullet.activate(bullet_x, bullet_y)
                 break
 
+    def draw_game(self) -> None:
+        """Draw the game scene."""
+        # Fill screen with black
+        self.screen.fill((0, 0, 0))
+
+        # Draw score
+        score_text = self.font.render(f"Score: {self.score}", True, TEXT_COLOR)
+        self.screen.blit(score_text, SCORE_TEXT_POSITION)
+
+        # Draw invaders
+        for invader in self.invaders:
+            invader.draw(self.screen)
+
+        # Draw player
+        self.player.draw(self.screen)
+
+        # Draw bullets
+        for bullet in self.player_bullets:
+            bullet.draw(self.screen)
+
+        # Draw invader bullets
+        for bullet in self.invader_bullets:
+            bullet.draw(self.screen)
+
+    def draw_game_lost(self) -> None:
+        """Draw the game over scene."""
+        # Fill screen with black
+        self.screen.fill((0, 0, 0))
+
+        # Render "Game over" text
+        game_over_text = self.game_over_font.render("Game over", True, TEXT_COLOR)
+        game_over_rect = game_over_text.get_rect(
+            center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 20)
+        )
+
+        # Render score text
+        score_text = self.game_over_font.render(
+            f"Score: {self.score}", True, TEXT_COLOR
+        )
+        score_rect = score_text.get_rect(
+            center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 20)
+        )
+
+        # Draw both texts
+        self.screen.blit(game_over_text, game_over_rect)
+        self.screen.blit(score_text, score_rect)
+
     def run(self) -> None:
         """Start the game loop."""
         self.running = True
@@ -114,6 +163,13 @@ class Game:
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
                         self.fire_bullet()
+
+            # If game is lost, just draw game over screen and skip updates
+            if self.game_lost:
+                self.draw_game_lost()
+                pygame.display.flip()
+                self.clock.tick(FPS)
+                continue
 
             # Handle continuous key presses
             keys = pygame.key.get_pressed()
@@ -182,27 +238,8 @@ class Game:
                         invader.y += INVADER_DROP_DISTANCE
                     self.invader_direction *= -1
 
-            # Fill screen with black
-            self.screen.fill((0, 0, 0))
-
-            # Draw score
-            score_text = self.font.render(f"Score: {self.score}", True, TEXT_COLOR)
-            self.screen.blit(score_text, SCORE_TEXT_POSITION)
-
-            # Draw invaders
-            for invader in self.invaders:
-                invader.draw(self.screen)
-
-            # Draw player
-            self.player.draw(self.screen)
-
-            # Draw bullets
-            for bullet in self.player_bullets:
-                bullet.draw(self.screen)
-
-            # Draw invader bullets
-            for bullet in self.invader_bullets:
-                bullet.draw(self.screen)
+            # Draw game scene
+            self.draw_game()
 
             # Update display
             pygame.display.flip()
