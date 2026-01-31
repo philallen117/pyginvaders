@@ -3,6 +3,14 @@ default:
 
 test: lint typecheck unittest
 
+format:
+    @echo "Running black --check ..."
+    @if command -v uv run black >/dev/null 2>&1; then \
+        uv run black --check src/ tests/; \
+    else \
+        @echo "black not found"; \
+    fi
+
 lint:
     @echo "Running flake8 ..."
     @if command -v uv run flake8 >/dev/null 2>&1; then \
