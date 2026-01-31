@@ -4,6 +4,12 @@ import pygame
 
 from pyginvaders.config import (
     FPS,
+    INVADER_COLS,
+    INVADER_ROWS,
+    INVADER_SPACING_X,
+    INVADER_SPACING_Y,
+    INVADER_START_X,
+    INVADER_START_Y,
     PLAYER_BULLET_HEIGHT,
     PLAYER_BULLET_POOL_SIZE,
     PLAYER_BULLET_WIDTH,
@@ -11,6 +17,7 @@ from pyginvaders.config import (
     SCREEN_HEIGHT,
     SCREEN_WIDTH,
 )
+from pyginvaders.invader import Invader
 from pyginvaders.player import Player
 from pyginvaders.player_bullet import PlayerBullet
 
@@ -33,6 +40,14 @@ class Game:
 
         # Create player bullet pool
         self.player_bullets = [PlayerBullet() for _ in range(PLAYER_BULLET_POOL_SIZE)]
+
+        # Create invader grid
+        self.invaders = []
+        for row in range(INVADER_ROWS):
+            for col in range(INVADER_COLS):
+                x = INVADER_START_X + col * INVADER_SPACING_X
+                y = INVADER_START_Y + row * INVADER_SPACING_Y
+                self.invaders.append(Invader(x, y))
 
     def fire_bullet(self) -> None:
         """Fire a bullet from the player if one is available in the pool."""
@@ -73,6 +88,10 @@ class Game:
 
             # Fill screen with black
             self.screen.fill((0, 0, 0))
+
+            # Draw invaders
+            for invader in self.invaders:
+                invader.draw(self.screen)
 
             # Draw player
             self.player.draw(self.screen)
