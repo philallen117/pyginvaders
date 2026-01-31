@@ -9,3 +9,5 @@ Tasks should be broken into stages that are each simple enough to for the agent 
 When referring to file, use paths relative to the project root, without a leading slash.
 
 When returning to a task with additional instructions, use a horizontal rule, which is three dashes on a line by itself.
+
+Here is a snippet to help with converting Zig game config to Python game config.

@@ -1,9 +1,26 @@
 """Game configuration constants."""
 
+import pygame
+
+# Font metrics - calculate actual pixels per point for this system
+# This is done at module import time to establish the conversion ratio
+pygame.font.init()  # Initialize font system
+_TEST_FONT_POINTS = 100  # Use large size for better precision
+_test_font = pygame.font.Font(None, _TEST_FONT_POINTS)
+_pixel_height = _test_font.get_height()  # Total line height in pixels
+PIXELS_PER_POINT: float = _pixel_height / _TEST_FONT_POINTS
+
+# Clean up test variables (keep them private to module)
+del _test_font, _pixel_height, _TEST_FONT_POINTS
+
+
 # Screen settings
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 FPS = 60
+TEXT_COLOR = (255, 255, 255)  # White
+SCORE_TEXT_POSITION = (20, 20)
+SCORE_TEXT_FONT_POINT_SIZE = int(25 / PIXELS_PER_POINT)  # points
 
 # Player settings
 PLAYER_WIDTH = 50
@@ -30,6 +47,8 @@ INVADER_START_Y = 50
 INVADER_SPACING_X = 60
 INVADER_SPACING_Y = 40
 INVADER_MOVE_DELAY = 30  # frames
+INVADER_DROP_DISTANCE = 20
 INVADER_SHOOT_DELAY = 60  # frames
 INVADER_SHOOT_CHANCE = 5  # percent chance per delay interval per live invader
-INVADER_DROP_DISTANCE = 20
+
+KILL_SCORE = 10  # Points per invader killed

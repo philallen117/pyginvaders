@@ -6,6 +6,7 @@ from pyginvaders.config import (
     FPS,
     INVADER_COLS,
     INVADER_DROP_DISTANCE,
+    INVADER_HEIGHT,
     INVADER_MOVE_DELAY,
     INVADER_ROWS,
     INVADER_SPACING_X,
@@ -14,16 +15,37 @@ from pyginvaders.config import (
     INVADER_START_X,
     INVADER_START_Y,
     INVADER_WIDTH,
+    KILL_SCORE,
     PLAYER_BULLET_HEIGHT,
     PLAYER_BULLET_POOL_SIZE,
     PLAYER_BULLET_WIDTH,
     PLAYER_WIDTH,
+    SCORE_TEXT_FONT_POINT_SIZE,
+    SCORE_TEXT_POSITION,
     SCREEN_HEIGHT,
     SCREEN_WIDTH,
+    TEXT_COLOR,
 )
 from pyginvaders.invader import Invader
 from pyginvaders.player import Player
 from pyginvaders.player_bullet import PlayerBullet
+
+
+def check_rect_collision(
+    x1: int, y1: int, w1: int, h1: int, x2: int, y2: int, w2: int, h2: int
+) -> bool:
+    """Check if two rectangles collide using AABB collision detection.
+
+    Args:
+        x1, y1: Top-left corner of first rectangle
+        w1, h1: Width and height of first rectangle
+        x2, y2: Top-left corner of second rectangle
+        w2, h2: Width and height of second rectangle
+
+    Returns:
+        True if rectangles overlap, False otherwise
+    """
+    return x1 < x2 + w2 and x1 + w1 > x2 and y1 < y2 + h2 and y1 + h1 > y2
 
 
 class Game:
@@ -56,6 +78,10 @@ class Game:
         # Invader movement state
         self.invader_direction = 1  # 1 for right, -1 for left
         self.invader_move_counter = 0  # counts frames until next move
+
+        # Score
+        self.score = 0
+        self.font = pygame.font.Font(None, SCORE_TEXT_FONT_POINT_SIZE)
 
     def fire_bullet(self) -> None:
         """Fire a bullet from the player if one is available in the pool."""
@@ -94,6 +120,30 @@ class Game:
             for bullet in self.player_bullets:
                 bullet.update()
 
+            # Check bullet-invader collisions
+            for bullet in self.player_bullets:
+                if not bullet.active:
+                    continue
+
+                for (
+                    invader
+                ) in self.invaders.copy():  # Copy to safely remove during iteration
+                    if check_rect_collision(
+                        bullet.x,
+                        bullet.y,
+                        PLAYER_BULLET_WIDTH,
+                        PLAYER_BULLET_HEIGHT,
+                        invader.x,
+                        invader.y,
+                        INVADER_WIDTH,
+                        INVADER_HEIGHT,
+                    ):
+                        # Collision detected
+                        self.invaders.remove(invader)
+                        bullet.deactivate()
+                        self.score += KILL_SCORE
+                        break  # Exit invader loop; continue checking other bullets
+
             # Update invaders
             self.invader_move_counter += 1
             if self.invader_move_counter >= INVADER_MOVE_DELAY:
@@ -117,6 +167,10 @@ class Game:
 
             # Fill screen with black
             self.screen.fill((0, 0, 0))
+
+            # Draw score
+            score_text = self.font.render(f"Score: {self.score}", True, TEXT_COLOR)
+            self.screen.blit(score_text, SCORE_TEXT_POSITION)
 
             # Draw invaders
             for invader in self.invaders:
