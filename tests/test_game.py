@@ -318,14 +318,15 @@ def test_game_lost_after_invader_kills():
     assert game.game_lost is True
 
 
-def test_draw_game_lost_method_exists():
-    """Test that draw_game_lost method can be called."""
+def test_draw_game_over_method_exists():
+    """Test that draw_game_over method can be called with different messages."""
     game = Game()
     game.score = 170
     game.game_lost = True
 
     # Should not raise an exception
-    game.draw_game_lost()
+    game.draw_game_over("Game over")
+    game.draw_game_over("You won!")
 
 
 def test_draw_game_method_exists():

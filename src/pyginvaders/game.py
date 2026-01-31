@@ -100,6 +100,7 @@ class Game:
 
         # Game state
         self.game_lost = False
+        self.player_won = False
 
     def fire_bullet(self) -> None:
         """Fire a bullet from the player if one is available in the pool."""
@@ -149,14 +150,18 @@ class Game:
         for bullet in self.invader_bullets:
             bullet.draw(self.screen)
 
-    def draw_game_lost(self) -> None:
-        """Draw the game over scene."""
+    def draw_game_over(self, message: str) -> None:
+        """Draw the game over scene with a custom message.
+
+        Args:
+            message: The message to display (e.g., "Game over" or "You won!")
+        """
         # Fill screen with black
         self.screen.fill((0, 0, 0))
 
-        # Render "Game over" text
-        game_over_text = self.game_over_font.render("Game over", True, TEXT_COLOR)
-        game_over_rect = game_over_text.get_rect(
+        # Render message text
+        message_text = self.game_over_font.render(message, True, TEXT_COLOR)
+        message_rect = message_text.get_rect(
             center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 20)
         )
 
@@ -169,7 +174,7 @@ class Game:
         )
 
         # Draw both texts
-        self.screen.blit(game_over_text, game_over_rect)
+        self.screen.blit(message_text, message_rect)
         self.screen.blit(score_text, score_rect)
 
     def check_player_bullet_collisions(self) -> None:
@@ -185,6 +190,11 @@ class Game:
                     self.invaders.remove(invader)
                     bullet.deactivate()
                     self.score += KILL_SCORE
+
+                    # Check if all invaders are destroyed
+                    if len(self.invaders) == 0:
+                        self.player_won = True
+
                     return  # Bullet hit something, stop checking this bullet
 
     def check_invader_bullet_collisions(self) -> bool:
@@ -219,7 +229,14 @@ class Game:
 
             # If game is lost, just draw game over screen and skip updates
             if self.game_lost:
-                self.draw_game_lost()
+                self.draw_game_over("Game over")
+                pygame.display.flip()
+                self.clock.tick(FPS)
+                continue
+
+            # If player won, draw win screen and skip updates
+            if self.player_won:
+                self.draw_game_over("You won!")
                 pygame.display.flip()
                 self.clock.tick(FPS)
                 continue

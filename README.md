@@ -18,7 +18,7 @@ The type checker is `pyrefly`.
 
 The test runner is `pytest`.
 
-`main` should be run with `uv run main.py`.
+`main` should be run with `./run_game.sh` (recommended to avoid SDL2 library conflicts on macOS) or `uv run main.py`.
 
 ## Workflow
 

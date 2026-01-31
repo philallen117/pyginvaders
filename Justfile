@@ -43,10 +43,3 @@ install-dev:
         @echo "uv not found"; \
     fi
 
-run:
-    @echo "Running pyginvaders ..."
-    @if command -v uv >/dev/null 2>&1; then \
-        uv run main.py; \
-    else \
-        @echo "pyginvaders not found"; \
-    fi
