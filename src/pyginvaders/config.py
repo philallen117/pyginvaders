@@ -52,3 +52,10 @@ INVADER_SHOOT_DELAY = 60  # frames
 INVADER_SHOOT_CHANCE = 5  # percent chance per delay interval per live invader
 
 KILL_SCORE = 10  # Points per invader killed
+
+# Invader bullet settings
+INVADER_BULLET_WIDTH = 4
+INVADER_BULLET_HEIGHT = 20
+INVADER_BULLET_SPEED = 5
+INVADER_BULLET_COLOR = (255, 255, 0)  # Yellow
+INVADER_BULLET_POOL_SIZE = 20

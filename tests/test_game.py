@@ -1,6 +1,11 @@
 """Tests for the game module."""
 
-from pyginvaders.config import INVADER_HEIGHT, INVADER_WIDTH, KILL_SCORE
+from pyginvaders.config import (
+    INVADER_BULLET_POOL_SIZE,
+    INVADER_HEIGHT,
+    INVADER_WIDTH,
+    KILL_SCORE,
+)
 from pyginvaders.game import Game, check_rect_collision
 from pyginvaders.invader import Invader
 
@@ -9,6 +14,14 @@ def test_game_initialization():
     """Test that the game is initialized correctly."""
     game = Game()
     assert game.running is False
+
+
+def test_invader_bullet_pool_created():
+    """Test that the invader bullet pool is created with correct size."""
+    game = Game()
+    assert len(game.invader_bullets) == INVADER_BULLET_POOL_SIZE
+    # All bullets should start inactive
+    assert all(not bullet.active for bullet in game.invader_bullets)
 
 
 def test_fire_bullet_activates_bullet():

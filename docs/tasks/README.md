@@ -10,4 +10,7 @@ When referring to file, use paths relative to the project root, without a leadin
 
 When returning to a task with additional instructions, use a horizontal rule, which is three dashes on a line by itself.
 
-Here is a snippet to help with converting Zig game config to Python game config.
+Here are a snippet to help with converting Zig game config to Python game config.
+
+> Here are some configuration constants expressed in Zig. Translate them into Python and append them to src/pyginvaders/config.py following the same convention.
+> Here are some configurations expressed in Zig that all apply to THING. Translate them into Python, append them to src/pyginvaders/config.py following the same convention, naming them name them `THING_...`.

@@ -4,6 +4,7 @@ import pygame
 
 from pyginvaders.config import (
     FPS,
+    INVADER_BULLET_POOL_SIZE,
     INVADER_COLS,
     INVADER_DROP_DISTANCE,
     INVADER_HEIGHT,
@@ -27,6 +28,7 @@ from pyginvaders.config import (
     TEXT_COLOR,
 )
 from pyginvaders.invader import Invader
+from pyginvaders.invader_bullet import InvaderBullet
 from pyginvaders.player import Player
 from pyginvaders.player_bullet import PlayerBullet
 
@@ -66,6 +68,11 @@ class Game:
 
         # Create player bullet pool
         self.player_bullets = [PlayerBullet() for _ in range(PLAYER_BULLET_POOL_SIZE)]
+
+        # Create invader bullet pool
+        self.invader_bullets = [
+            InvaderBullet() for _ in range(INVADER_BULLET_POOL_SIZE)
+        ]
 
         # Create invader grid
         self.invaders = []
@@ -118,6 +125,10 @@ class Game:
 
             # Update bullets
             for bullet in self.player_bullets:
+                bullet.update()
+
+            # Update invader bullets
+            for bullet in self.invader_bullets:
                 bullet.update()
 
             # Check bullet-invader collisions
@@ -175,6 +186,10 @@ class Game:
 
             # Draw bullets
             for bullet in self.player_bullets:
+                bullet.draw(self.screen)
+
+            # Draw invader bullets
+            for bullet in self.invader_bullets:
                 bullet.draw(self.screen)
 
             # Update display
