@@ -2,8 +2,15 @@
 
 import pygame
 
-from pyginvaders.config import FPS, SCREEN_HEIGHT, SCREEN_WIDTH, PLAYER_WIDTH
+from pyginvaders.config import (
+    FPS,
+    PLAYER_BULLET_POOL_SIZE,
+    PLAYER_WIDTH,
+    SCREEN_HEIGHT,
+    SCREEN_WIDTH,
+)
 from pyginvaders.player import Player
+from pyginvaders.player_bullet import PlayerBullet
 
 
 class Game:
@@ -21,6 +28,9 @@ class Game:
         player_x = SCREEN_WIDTH // 2 - PLAYER_WIDTH // 2
         player_y = SCREEN_HEIGHT - 60  # 60 pixels from bottom
         self.player = Player(player_x, player_y)
+
+        # Create player bullet pool
+        self.player_bullets = [PlayerBullet() for _ in range(PLAYER_BULLET_POOL_SIZE)]
 
     def run(self) -> None:
         """Start the game loop."""
@@ -41,11 +51,19 @@ class Game:
             # Keep player within bounds
             self.player.clamp_to_bounds()
 
+            # Update bullets
+            for bullet in self.player_bullets:
+                bullet.update()
+
             # Fill screen with black
             self.screen.fill((0, 0, 0))
 
             # Draw player
             self.player.draw(self.screen)
+
+            # Draw bullets
+            for bullet in self.player_bullets:
+                bullet.draw(self.screen)
 
             # Update display
             pygame.display.flip()
