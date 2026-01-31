@@ -14,3 +14,15 @@ On grounds of simplicity, i would like to keep draw() abstract on Bullet. Show m
 First, show me a plan.
 
 --- BREAK for commit.
+
+Now add player bullet collision logic.
+
+First, add an instance variable called game_lost to game, initially false.
+
+If an invader bullet collides with the Player object, the game is lost. I prefer the update of dead invaders and score to be done before the update of game_lost. Update the game logic and tests accordingly. We will deal with displaying the final outcome later.
+
+---
+
+Quick tidy-up. In the game logic around line 146, the should use get_rectangle on the invader and the player bullet. Moreover, for efficiency, the code should get the bullet rectangle in the bullet loop before the invader loop is entered. Make the change.
+
+--- BREAK for commit

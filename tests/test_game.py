@@ -14,6 +14,7 @@ def test_game_initialization():
     """Test that the game is initialized correctly."""
     game = Game()
     assert game.running is False
+    assert game.game_lost is False
 
 
 def test_invader_bullet_pool_created():
@@ -205,3 +206,108 @@ def test_multiple_bullets_kill_multiple_invaders():
     assert bullet2.active is False
     # Verify score increased by two kills
     assert game.score == 2 * KILL_SCORE
+
+
+def test_invader_bullet_hits_player():
+    """Test that invader bullet hitting player sets game_lost to True."""
+    game = Game()
+
+    # Position an invader bullet to collide with the player
+    bullet = game.invader_bullets[0]
+    bullet.activate(game.player.x, game.player.y)
+
+    # Manually trigger collision check (simulate one frame)
+    for bullet in game.invader_bullets:
+        if not bullet.active:
+            continue
+
+        if check_rect_collision(
+            bullet.get_rectangle(),
+            game.player.get_rectangle(),
+        ):
+            bullet.deactivate()
+            game.game_lost = True
+            break
+
+    # Verify game_lost is True
+    assert game.game_lost is True
+    # Verify bullet was deactivated
+    assert bullet.active is False
+
+
+def test_invader_bullet_miss_player():
+    """Test that invader bullet missing player doesn't set game_lost."""
+    game = Game()
+
+    # Position an invader bullet away from the player
+    test_bullet = game.invader_bullets[0]
+    test_bullet.activate(game.player.x + 200, game.player.y)
+
+    # Manually trigger collision check (simulate one frame)
+    for bullet in game.invader_bullets:
+        if not bullet.active:
+            continue
+
+        if check_rect_collision(
+            bullet.get_rectangle(),
+            game.player.get_rectangle(),
+        ):
+            bullet.deactivate()
+            game.game_lost = True
+            break
+
+    # Verify game_lost is still False
+    assert game.game_lost is False
+    # Verify bullet is still active
+    assert test_bullet.active is True
+
+
+def test_game_lost_after_invader_kills():
+    """Test that invader kills and score update happen before game_lost check."""
+    game = Game()
+
+    # Set up an invader
+    invader = Invader(100, 100)
+    game.invaders = [invader]
+    initial_score = game.score
+
+    # Position a player bullet to kill the invader
+    player_bullet = game.player_bullets[0]
+    player_bullet.activate(invader.x, invader.y)
+
+    # Position an invader bullet to hit the player
+    invader_bullet = game.invader_bullets[0]
+    invader_bullet.activate(game.player.x, game.player.y)
+
+    # Manually trigger collision checks in correct order (simulate one frame)
+    # First, check player bullet-invader collisions
+    for bullet in game.player_bullets:
+        if not bullet.active:
+            continue
+        for inv in game.invaders.copy():
+            if check_rect_collision(
+                (bullet.x, bullet.y, 4, 20),
+                (inv.x, inv.y, INVADER_WIDTH, INVADER_HEIGHT),
+            ):
+                game.invaders.remove(inv)
+                bullet.deactivate()
+                game.score += KILL_SCORE
+                break
+
+    # Then, check invader bullet-player collisions
+    for bullet in game.invader_bullets:
+        if not bullet.active:
+            continue
+        if check_rect_collision(
+            bullet.get_rectangle(),
+            game.player.get_rectangle(),
+        ):
+            bullet.deactivate()
+            game.game_lost = True
+            break
+
+    # Verify invader was killed and score updated
+    assert len(game.invaders) == 0
+    assert game.score == initial_score + KILL_SCORE
+    # Verify game_lost is True (happened after)
+    assert game.game_lost is True

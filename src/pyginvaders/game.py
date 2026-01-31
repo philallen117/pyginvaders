@@ -7,7 +7,6 @@ from pyginvaders.config import (
     INVADER_BULLET_POOL_SIZE,
     INVADER_COLS,
     INVADER_DROP_DISTANCE,
-    INVADER_HEIGHT,
     INVADER_MOVE_DELAY,
     INVADER_ROWS,
     INVADER_SPACING_X,
@@ -90,6 +89,9 @@ class Game:
         self.score = 0
         self.font = pygame.font.Font(None, SCORE_TEXT_FONT_POINT_SIZE)
 
+        # Game state
+        self.game_lost = False
+
     def fire_bullet(self) -> None:
         """Fire a bullet from the player if one is available in the pool."""
         # Find first inactive bullet
@@ -131,23 +133,33 @@ class Game:
             for bullet in self.invader_bullets:
                 bullet.update()
 
-            # Check bullet-invader collisions
+            # Check player bullet - invader collisions
             for bullet in self.player_bullets:
                 if not bullet.active:
                     continue
 
+                bullet_rect = bullet.get_rectangle()
                 for (
                     invader
                 ) in self.invaders.copy():  # Copy to safely remove during iteration
-                    if check_rect_collision(
-                        (bullet.x, bullet.y, PLAYER_BULLET_WIDTH, PLAYER_BULLET_HEIGHT),
-                        (invader.x, invader.y, INVADER_WIDTH, INVADER_HEIGHT),
-                    ):
+                    if check_rect_collision(bullet_rect, invader.get_rectangle()):
                         # Collision detected
                         self.invaders.remove(invader)
                         bullet.deactivate()
                         self.score += KILL_SCORE
                         break  # Exit invader loop; continue checking other bullets
+
+            # Check invader bullet - player collisions
+            player_rect = self.player.get_rectangle()
+            for bullet in self.invader_bullets:
+                if not bullet.active:
+                    continue
+
+                if check_rect_collision(bullet.get_rectangle(), player_rect):
+                    # Collision detected - game is lost
+                    bullet.deactivate()
+                    self.game_lost = True
+                    break  # Exit bullet loop
 
             # Update invaders
             self.invader_move_counter += 1
