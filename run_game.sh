@@ -1,10 +1,13 @@
 #!/bin/bash
-# Wrapper script to run pyginvaders without the Homebrew SDL2 library conflict
-# This prevents the system SDL2 from being loaded, using only pygame-ce's bundled SDL2
-
-# Clear any existing library paths that might load Homebrew libraries
-export DYLD_LIBRARY_PATH=""
-export DYLD_FALLBACK_LIBRARY_PATH=""
+# Wrapper script to run pyginvaders
+# 
+# Note: If you experience crashes with duplicate SDL2 library warnings,
+# the most reliable fix is to uninstall Homebrew SDL2:
+#   brew uninstall sdl2
+#
+# This may require reinstalling ffmpeg if you use it:
+#   brew reinstall ffmpeg
+# (ffmpeg will work fine for most tasks without SDL2)
 
 # Run the game with uv
-exec uv run python main.py
+uv run python main.py

@@ -18,7 +18,7 @@ Multiple SDL2 libraries were being loaded simultaneously:
 
 This caused Objective-C runtime warnings:
 
-```
+```text
 objc[...]: Class SDL_RumbleMotor is implemented in both /opt/homebrew/Cellar/sdl2/2.32.10/lib/libSDL2-2.0.0.dylib and 
 /Users/phil/code/pyginvaders/.venv/lib/python3.14/site-packages/pygame/.dylibs/libSDL2-2.0.0.dylib. 
 This may cause spurious casting failures and mysterious crashes.
@@ -60,51 +60,96 @@ Run the game using the wrapper script:
 
 This is now the recommended way to run the game on macOS. Direct use of `uv run main.py` may still crash due to the SDL2 conflict.
 
-## Why We Can't Just Remove Homebrew SDL2
+## Why Removing Homebrew SDL2 Is Safe
 
-The Homebrew SDL2 library is required by FFmpeg:
+While Homebrew SDL2 is a dependency of FFmpeg, removing it doesn't actually break FFmpeg functionality:
 
 ```bash
 $ brew uses sdl2 --installed
 ffmpeg
 ```
 
-Removing the Homebrew SDL2 would break FFmpeg, which may be used by other tools and applications on the system.
+FFmpeg uses SDL2 only for optional display features (showing video in a window), not for core transcoding/encoding operations. Most command-line FFmpeg usage works perfectly without SDL2.
+
+Using `brew uninstall --ignore-dependencies sdl2` removes SDL2 while keeping FFmpeg installed. This is the recommended solution to eliminate the library conflict permanently.
 
 ## Alternative Solutions Considered
 
-### 1. Environment Variable in main.py
+### 1. Environment Variable Wrapper Script
 
-Setting `DYLD_LIBRARY_PATH` or `DYLD_FALLBACK_LIBRARY_PATH` inside Python code doesn't work because the dynamic linker has already loaded libraries by the time Python imports pygame.
+Created `run_game.sh` to clear library paths:
 
-### 2. Switching to pygame-ce
+```bash
+export DYLD_LIBRARY_PATH=""
+export DYLD_FALLBACK_LIBRARY_PATH=""
+exec uv run python main.py
+```
 
-Already using pygame-ce (Community Edition), which has better macOS support than standard pygame, but the conflict still occurs because both bundle SDL2 and Homebrew SDL2 is in the system path.
+**Result:** Still showed duplicate library warnings and intermittent crashes due to macOS System Integrity Protection (SIP) stripping these environment variables for security.
 
-### 3. Removing Homebrew SDL2
+### 2. Modified Wrapper with Library Path Manipulation
 
-Not viable due to FFmpeg dependency.
+Attempted to explicitly exclude Homebrew paths or prepend virtual environment paths.
+
+**Result:** Ineffective - macOS SIP prevents DYLD_* environment variable manipulation for processes launching system binaries.
+
+### 3. Switching to pygame-ce
+
+Already using pygame-ce (Community Edition), which has better macOS support and bundles SDL2.
+
+**Result:** Doesn't solve the conflict since both Homebrew SDL2 and pygame-ce's bundled SDL2 are loaded.
+
+### 4. Removing Homebrew SDL2 (Final Solution)
+
+Used `brew uninstall --ignore-dependencies sdl2` to remove Homebrew SDL2, then reinstalled pygame-ce:
+
+```bash
+brew uninstall --ignore-dependencies sdl2
+uv pip uninstall pygame-ce
+uv pip install pygame-ce --reinstall
+```
+
+**Result:** ✅ Complete success - no warnings, no crashes, game runs perfectly every time.
 
 ## Verification
 
-After implementing the wrapper script:
+After removing Homebrew SDL2 and reinstalling pygame-ce:
 
-- ✅ Game runs without crashing
+- ✅ Game runs without crashing (tested multiple launches)
 - ✅ All 49 tests pass  
 - ✅ Game loop executes continuously without segfaults
 - ✅ Font rendering works correctly
-- ⚠️  Warnings still appear but don't cause crashes
+- ✅ No duplicate library warnings
+- ✅ Clean SDL2 initialization using only pygame-ce's bundled library
+
+Test commands:
+
+```bash
+# Quick launch test
+timeout 5 uv run main.py
+
+# 2-second sustained run
+uv run main.py & sleep 2 && pkill -f main.py
+
+# Full test suite
+uv run pytest
+```
+
+All tests passed successfully with no crashes or warnings.
 
 ## Files Modified
 
-- `run_game.sh` - New wrapper script (executable)
-- `README.md` - Updated to recommend using wrapper script
+- System: Removed Homebrew SDL2 (`brew uninstall --ignore-dependencies sdl2`)
+- Python environment: Reinstalled pygame-ce to use bundled SDL2
+- `run_game.sh` - Simplified to just run the game (wrapper no longer needed for conflict resolution)
+- `README.md` - Updated run instructions
+- `Justfile` - removed run task
 
 ## Technical Details
 
 The crash stack trace showed:
 
-```
+```text
 Fatal Python error: Segmentation fault
   File "/Users/phil/code/pyginvaders/src/pyginvaders/game.py", line 135 in draw_game
   File "/Users/phil/code/pyginvaders/src/pyginvaders/game.py", line 305 in run

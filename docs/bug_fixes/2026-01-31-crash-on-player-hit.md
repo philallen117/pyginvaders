@@ -21,7 +21,7 @@ When an invader bullet hit the player, the collision detection code would:
 
 This created a race condition where game objects were being updated and drawn in an inconsistent state (game marked as lost but still processing normal game logic). This likely triggered an underlying SDL2 library bug, as evidenced by numerous warnings about duplicate class implementations:
 
-```
+```text
 objc[...]: Class SDL_RumbleMotor is implemented in both 
 /opt/homebrew/Cellar/sdl2/2.32.10/lib/libSDL2-2.0.0.dylib and 
 /Users/phil/code/pyginvaders/.venv/lib/python3.14/site-packages/pygame/.dylibs/libSDL2-2.0.0.dylib. 

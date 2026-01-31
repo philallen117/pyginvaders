@@ -1,9 +1,7 @@
 """Test for the player win condition."""
 
-import pytest
-
 from pyginvaders.config import INVADER_COLS, INVADER_ROWS, KILL_SCORE
-from pyginvaders.game import Game, check_rect_collision
+from pyginvaders.game import Game
 
 
 def test_player_won_initialized_to_false():
