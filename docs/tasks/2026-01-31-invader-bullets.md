@@ -26,3 +26,19 @@ If an invader bullet collides with the Player object, the game is lost. I prefer
 Quick tidy-up. In the game logic around line 146, the should use get_rectangle on the invader and the player bullet. Moreover, for efficiency, the code should get the bullet rectangle in the bullet loop before the invader loop is entered. Make the change.
 
 --- BREAK for commit
+
+Now, we need invaders to fire bullets.
+
+At intervals on INVADER_SHOOT_DELAY, all invaders randomly decide shoot, each with probability INVADER_SHOOT_CHANCE per cent.
+
+If an invader decides to shoot, the game takes an inactive bullet from the pool and makes it active. (If no bullets are inactive, nothing further happens this frame; this is not an error.) As you can see, this part is analogous to player bullets.
+
+When an invader shoots, the bullet appears at the bottom centre of that invader.
+
+Note that invader bullets pass over other invaders without interacting with them.
+
+Plan the change and unit tests for it.
+
+---
+
+That is good, but while doing that please factor out a method fire_invader_bullet, analogously to fire_bullet (which fires player bullet)

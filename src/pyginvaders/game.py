@@ -1,15 +1,21 @@
 """Game module containing the main game loop."""
 
+import random
+
 import pygame
 
 from pyginvaders.config import (
     FPS,
     GAME_OVER_TEXT_FONT_POINT_SIZE,
     INVADER_BULLET_POOL_SIZE,
+    INVADER_BULLET_WIDTH,
     INVADER_COLS,
     INVADER_DROP_DISTANCE,
+    INVADER_HEIGHT,
     INVADER_MOVE_DELAY,
     INVADER_ROWS,
+    INVADER_SHOOT_CHANCE,
+    INVADER_SHOOT_DELAY,
     INVADER_SPACING_X,
     INVADER_SPACING_Y,
     INVADER_SPEED_X,
@@ -85,6 +91,7 @@ class Game:
         # Invader movement state
         self.invader_direction = 1  # 1 for right, -1 for left
         self.invader_move_counter = 0  # counts frames until next move
+        self.invader_shoot_counter = 0  # counts frames until next shooting decision
 
         # Score
         self.score = 0
@@ -103,6 +110,19 @@ class Game:
                 bullet_x = self.player.x + PLAYER_WIDTH // 2 - PLAYER_BULLET_WIDTH // 2
                 bullet_y = self.player.y - PLAYER_BULLET_HEIGHT
                 bullet.activate(bullet_x, bullet_y)
+                break
+
+    def fire_invader_bullet(self, x: int, y: int) -> None:
+        """Fire a bullet from an invader if one is available in the pool.
+
+        Args:
+            x: X position for the bullet
+            y: Y position for the bullet
+        """
+        # Find first inactive bullet
+        for bullet in self.invader_bullets:
+            if not bullet.active:
+                bullet.activate(x, y)
                 break
 
     def draw_game(self) -> None:
@@ -237,6 +257,20 @@ class Game:
                         invader.x -= self.invader_direction * INVADER_SPEED_X
                         invader.y += INVADER_DROP_DISTANCE
                     self.invader_direction *= -1
+
+            # Invader shooting logic
+            self.invader_shoot_counter += 1
+            if self.invader_shoot_counter >= INVADER_SHOOT_DELAY:
+                self.invader_shoot_counter = 0
+                for invader in self.invaders:
+                    # Each invader has INVADER_SHOOT_CHANCE% chance to shoot
+                    if random.randint(0, 99) < INVADER_SHOOT_CHANCE:
+                        # Calculate bullet position at bottom center of invader
+                        bullet_x = (
+                            invader.x + INVADER_WIDTH // 2 - INVADER_BULLET_WIDTH // 2
+                        )
+                        bullet_y = invader.y + INVADER_HEIGHT
+                        self.fire_invader_bullet(bullet_x, bullet_y)
 
             # Draw game scene
             self.draw_game()

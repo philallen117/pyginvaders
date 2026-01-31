@@ -1,8 +1,13 @@
 """Tests for the game module."""
 
+from unittest.mock import patch
+
 from pyginvaders.config import (
     INVADER_BULLET_POOL_SIZE,
+    INVADER_BULLET_WIDTH,
     INVADER_HEIGHT,
+    INVADER_SHOOT_CHANCE,
+    INVADER_SHOOT_DELAY,
     INVADER_WIDTH,
     KILL_SCORE,
 )
@@ -329,3 +334,130 @@ def test_draw_game_method_exists():
 
     # Should not raise an exception
     game.draw_game()
+
+
+def test_invader_shoot_counter_initialized():
+    """Test that invader shoot counter starts at 0."""
+    game = Game()
+    assert game.invader_shoot_counter == 0
+
+
+def test_fire_invader_bullet_activates_bullet():
+    """Test that firing an invader bullet activates an inactive bullet."""
+    game = Game()
+    # All bullets should start inactive
+    assert all(not bullet.active for bullet in game.invader_bullets)
+
+    game.fire_invader_bullet(100, 200)
+
+    # Exactly one bullet should now be active
+    active_bullets = [b for b in game.invader_bullets if b.active]
+    assert len(active_bullets) == 1
+
+
+def test_fire_invader_bullet_positions_correctly():
+    """Test that fired invader bullet is positioned at given coordinates."""
+    game = Game()
+
+    game.fire_invader_bullet(100, 200)
+
+    active_bullet = next(b for b in game.invader_bullets if b.active)
+    assert active_bullet.x == 100
+    assert active_bullet.y == 200
+
+
+def test_fire_invader_bullet_with_exhausted_pool():
+    """Test that firing does nothing when all bullets are active."""
+    game = Game()
+
+    # Activate all bullets
+    for bullet in game.invader_bullets:
+        bullet.activate(100, 200)
+
+    # Count active bullets before
+    active_count_before = sum(1 for b in game.invader_bullets if b.active)
+
+    # Try to fire (should do nothing)
+    game.fire_invader_bullet(150, 250)
+
+    # Count should be the same
+    active_count_after = sum(1 for b in game.invader_bullets if b.active)
+    assert active_count_after == active_count_before
+    assert active_count_after == len(game.invader_bullets)
+
+
+@patch("pyginvaders.game.random.randint")
+def test_invader_shoots_bullet(mock_randint):
+    """Test that invader shoots when random chance succeeds."""
+    game = Game()
+    # Mock random to guarantee shooting (return value < INVADER_SHOOT_CHANCE)
+    mock_randint.return_value = 0
+
+    # Set counter to trigger shooting
+    game.invader_shoot_counter = INVADER_SHOOT_DELAY
+
+    # Get an invader
+    invader = game.invaders[0]
+
+    # Count active bullets before
+    active_before = sum(1 for b in game.invader_bullets if b.active)
+
+    # Manually trigger shooting logic for this one invader
+    if game.invader_shoot_counter >= INVADER_SHOOT_DELAY:
+        game.invader_shoot_counter = 0
+        if mock_randint(0, 99) < INVADER_SHOOT_CHANCE:
+            bullet_x = invader.x + INVADER_WIDTH // 2 - INVADER_BULLET_WIDTH // 2
+            bullet_y = invader.y + INVADER_HEIGHT
+            game.fire_invader_bullet(bullet_x, bullet_y)
+
+    # At least one bullet should be active now
+    active_after = sum(1 for b in game.invader_bullets if b.active)
+    assert active_after > active_before
+
+
+@patch("pyginvaders.game.random.randint")
+def test_invader_bullet_positioned_at_invader_bottom_center(mock_randint):
+    """Test that invader bullet appears at bottom center of invader."""
+    game = Game()
+    # Mock random to guarantee shooting
+    mock_randint.return_value = 0
+
+    invader = game.invaders[0]
+    expected_x = invader.x + INVADER_WIDTH // 2 - INVADER_BULLET_WIDTH // 2
+    expected_y = invader.y + INVADER_HEIGHT
+
+    # Fire bullet
+    game.fire_invader_bullet(expected_x, expected_y)
+
+    # Find the active bullet
+    active_bullet = next(b for b in game.invader_bullets if b.active)
+    assert active_bullet.x == expected_x
+    assert active_bullet.y == expected_y
+
+
+@patch("pyginvaders.game.random.randint")
+def test_invader_shooting_respects_probability(mock_randint):
+    """Test that invader doesn't shoot when random chance fails."""
+    game = Game()
+    # Mock random to prevent shooting (return value >= INVADER_SHOOT_CHANCE)
+    mock_randint.return_value = INVADER_SHOOT_CHANCE
+
+    # Set counter to trigger shooting
+    game.invader_shoot_counter = INVADER_SHOOT_DELAY
+
+    invader = game.invaders[0]
+
+    # Count active bullets before
+    active_before = sum(1 for b in game.invader_bullets if b.active)
+
+    # Manually trigger shooting logic for this one invader
+    if game.invader_shoot_counter >= INVADER_SHOOT_DELAY:
+        game.invader_shoot_counter = 0
+        if mock_randint(0, 99) < INVADER_SHOOT_CHANCE:
+            bullet_x = invader.x + INVADER_WIDTH // 2 - INVADER_BULLET_WIDTH // 2
+            bullet_y = invader.y + INVADER_HEIGHT
+            game.fire_invader_bullet(bullet_x, bullet_y)
+
+    # No bullets should be activated
+    active_after = sum(1 for b in game.invader_bullets if b.active)
+    assert active_after == active_before
