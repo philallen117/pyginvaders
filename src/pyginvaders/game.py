@@ -172,6 +172,39 @@ class Game:
         self.screen.blit(game_over_text, game_over_rect)
         self.screen.blit(score_text, score_rect)
 
+    def check_player_bullet_collisions(self) -> None:
+        """Check for collisions between player bullets and invaders."""
+        for bullet in self.player_bullets:
+            if not bullet.active:
+                continue
+
+            bullet_rect = bullet.get_rectangle()
+            for invader in self.invaders.copy():
+                if check_rect_collision(bullet_rect, invader.get_rectangle()):
+                    # Collision detected
+                    self.invaders.remove(invader)
+                    bullet.deactivate()
+                    self.score += KILL_SCORE
+                    return  # Bullet hit something, stop checking this bullet
+
+    def check_invader_bullet_collisions(self) -> bool:
+        """Check for collisions between invader bullets and player.
+
+        Returns:
+            True if player was hit (game should end), False otherwise
+        """
+        player_rect = self.player.get_rectangle()
+        for bullet in self.invader_bullets:
+            if not bullet.active:
+                continue
+
+            if check_rect_collision(bullet.get_rectangle(), player_rect):
+                # Collision detected - game is lost
+                bullet.deactivate()
+                return True
+
+        return False
+
     def run(self) -> None:
         """Start the game loop."""
         self.running = True
@@ -209,33 +242,12 @@ class Game:
             for bullet in self.invader_bullets:
                 bullet.update()
 
-            # Check player bullet - invader collisions
-            for bullet in self.player_bullets:
-                if not bullet.active:
-                    continue
+            # Check for collisions
+            self.check_player_bullet_collisions()
 
-                bullet_rect = bullet.get_rectangle()
-                for (
-                    invader
-                ) in self.invaders.copy():  # Copy to safely remove during iteration
-                    if check_rect_collision(bullet_rect, invader.get_rectangle()):
-                        # Collision detected
-                        self.invaders.remove(invader)
-                        bullet.deactivate()
-                        self.score += KILL_SCORE
-                        break  # Exit invader loop; continue checking other bullets
-
-            # Check invader bullet - player collisions
-            player_rect = self.player.get_rectangle()
-            for bullet in self.invader_bullets:
-                if not bullet.active:
-                    continue
-
-                if check_rect_collision(bullet.get_rectangle(), player_rect):
-                    # Collision detected - game is lost
-                    bullet.deactivate()
-                    self.game_lost = True
-                    break  # Exit bullet loop
+            if self.check_invader_bullet_collisions():
+                self.game_lost = True
+                continue  # Skip to next frame to show game over screen
 
             # Update invaders
             self.invader_move_counter += 1
