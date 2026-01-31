@@ -4,7 +4,9 @@ import pygame
 
 from pyginvaders.config import (
     FPS,
+    PLAYER_BULLET_HEIGHT,
     PLAYER_BULLET_POOL_SIZE,
+    PLAYER_BULLET_WIDTH,
     PLAYER_WIDTH,
     SCREEN_HEIGHT,
     SCREEN_WIDTH,
@@ -32,6 +34,17 @@ class Game:
         # Create player bullet pool
         self.player_bullets = [PlayerBullet() for _ in range(PLAYER_BULLET_POOL_SIZE)]
 
+    def fire_bullet(self) -> None:
+        """Fire a bullet from the player if one is available in the pool."""
+        # Find first inactive bullet
+        for bullet in self.player_bullets:
+            if not bullet.active:
+                # Position bullet centered on player, just above it
+                bullet_x = self.player.x + PLAYER_WIDTH // 2 - PLAYER_BULLET_WIDTH // 2
+                bullet_y = self.player.y - PLAYER_BULLET_HEIGHT
+                bullet.activate(bullet_x, bullet_y)
+                break
+
     def run(self) -> None:
         """Start the game loop."""
         self.running = True
@@ -40,6 +53,9 @@ class Game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        self.fire_bullet()
 
             # Handle continuous key presses
             keys = pygame.key.get_pressed()
