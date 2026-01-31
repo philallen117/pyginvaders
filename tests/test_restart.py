@@ -84,8 +84,8 @@ def test_reset_game_resets_game_state_flags():
 
     game.reset_game()
 
-    assert game.game_lost is False
-    assert game.player_won is False
+    assert not game.game_lost
+    assert not game.player_won
 
 
 def test_reset_game_resets_invader_movement_state():
@@ -122,7 +122,7 @@ def test_restart_from_game_over_state():
                 game.reset_game()
 
     # Game should be reset
-    assert game.game_lost is False
+    assert not game.game_lost
     assert game.score == 0
     assert len(game.invaders) == INVADER_ROWS * INVADER_COLS
 
@@ -146,7 +146,7 @@ def test_restart_from_win_state():
                 game.reset_game()
 
     # Game should be reset
-    assert game.player_won is False
+    assert not game.player_won
     assert game.score == 0
     assert len(game.invaders) == INVADER_ROWS * INVADER_COLS
 

@@ -38,7 +38,7 @@ def test_player_wins_when_all_invaders_killed():
 
     # Verify all invaders are gone and player won
     assert len(game.invaders) == 0
-    assert game.player_won is True
+    assert game.player_won
 
 
 def test_player_does_not_win_with_invaders_remaining():
@@ -147,5 +147,5 @@ def test_bullet_deactivates_when_winning_shot():
 
     game.check_player_bullet_collisions()
 
-    assert bullet.active is False
-    assert game.player_won is True
+    assert not bullet.active
+    assert game.player_won

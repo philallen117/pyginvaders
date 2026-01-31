@@ -60,3 +60,14 @@ INVADER_BULLET_HEIGHT = 20
 INVADER_BULLET_SPEED = 5
 INVADER_BULLET_COLOR = (255, 255, 0)  # Yellow
 INVADER_BULLET_POOL_SIZE = 20
+
+# Shield settings
+SHIELD_WIDTH = 80
+SHIELD_HEIGHT = 60
+SHIELD_COLOR = (0, 255, 255)  # Cyan
+SHIELD_START_COUNT = 4
+SHIELD_START_X = 150
+SHIELD_SPACING_X = 150
+SHIELD_START_Y = 450
+SHIELD_INITIAL_HEALTH = 10  # Number of hits shield can take before being destroyed
+SHIELD_ALPHA_REDUCTION = 20  # Alpha reduction per hit (makes shields more visible)

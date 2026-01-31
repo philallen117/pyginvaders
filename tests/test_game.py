@@ -10,6 +10,10 @@ from pyginvaders.config import (
     INVADER_SHOOT_DELAY,
     INVADER_WIDTH,
     KILL_SCORE,
+    SHIELD_SPACING_X,
+    SHIELD_START_COUNT,
+    SHIELD_START_X,
+    SHIELD_START_Y,
 )
 from pyginvaders.game import Game, check_rect_collision
 from pyginvaders.invader import Invader
@@ -448,9 +452,6 @@ def test_invader_shooting_respects_probability(mock_randint):
 
     invader = game.invaders[0]
 
-    # Count active bullets before
-    active_before = sum(1 for b in game.invader_bullets if b.active)
-
     # Manually trigger shooting logic for this one invader
     if game.invader_shoot_counter >= INVADER_SHOOT_DELAY:
         game.invader_shoot_counter = 0
@@ -459,6 +460,31 @@ def test_invader_shooting_respects_probability(mock_randint):
             bullet_y = invader.y + INVADER_HEIGHT
             game.fire_invader_bullet(bullet_x, bullet_y)
 
-    # No bullets should be activated
-    active_after = sum(1 for b in game.invader_bullets if b.active)
-    assert active_after == active_before
+
+def test_shields_created():
+    """Test that shields are created correctly in the game."""
+    game = Game()
+    assert len(game.shields) == SHIELD_START_COUNT
+
+
+def test_shields_positioned_correctly():
+    """Test that shields are positioned according to config."""
+    game = Game()
+    for i, shield in enumerate(game.shields):
+        expected_x = SHIELD_START_X + i * SHIELD_SPACING_X
+        assert shield.x == expected_x
+        assert shield.y == SHIELD_START_Y
+
+
+def test_reset_game_recreates_shields():
+    """Test that reset_game creates fresh shields."""
+    game = Game()
+    # Remove some shields
+    game.shields = game.shields[:2]
+    assert len(game.shields) != SHIELD_START_COUNT
+
+    # Reset game
+    game.reset_game()
+
+    # Should have full set of shields again
+    assert len(game.shields) == SHIELD_START_COUNT

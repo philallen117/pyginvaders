@@ -31,12 +31,17 @@ from pyginvaders.config import (
     SCORE_TEXT_POSITION,
     SCREEN_HEIGHT,
     SCREEN_WIDTH,
+    SHIELD_SPACING_X,
+    SHIELD_START_COUNT,
+    SHIELD_START_X,
+    SHIELD_START_Y,
     TEXT_COLOR,
 )
 from pyginvaders.invader import Invader
 from pyginvaders.invader_bullet import InvaderBullet
 from pyginvaders.player import Player
 from pyginvaders.player_bullet import PlayerBullet
+from pyginvaders.shield import Shield
 
 
 def check_rect_collision(
@@ -97,6 +102,13 @@ class Game:
                 y = INVADER_START_Y + row * INVADER_SPACING_Y
                 self.invaders.append(Invader(x, y))
 
+        # Create shields
+        self.shields = []
+        for i in range(SHIELD_START_COUNT):
+            x = SHIELD_START_X + i * SHIELD_SPACING_X
+            y = SHIELD_START_Y
+            self.shields.append(Shield(x, y))
+
         # Invader movement state
         self.invader_direction = 1  # 1 for right, -1 for left
         self.invader_move_counter = 0  # counts frames until next move
@@ -145,6 +157,10 @@ class Game:
         # Draw invaders
         for invader in self.invaders:
             invader.draw(self.screen)
+
+        # Draw shields
+        for shield in self.shields:
+            shield.draw(self.screen)
 
         # Draw player
         self.player.draw(self.screen)
@@ -227,6 +243,26 @@ class Game:
 
         return False
 
+    def check_invader_bullet_shield_collisions(self) -> None:
+        """Check for collisions between invader bullets and shields."""
+        for bullet in self.invader_bullets:
+            if not bullet.active:
+                continue
+
+            bullet_rect = bullet.get_rectangle()
+            # Use a copy to avoid modifying list during iteration
+            for shield in self.shields.copy():
+                if check_rect_collision(bullet_rect, shield.get_rectangle()):
+                    # Collision detected
+                    bullet.deactivate()
+                    shield.take_damage()
+
+                    # Remove shield if destroyed
+                    if shield.is_destroyed():
+                        self.shields.remove(shield)
+
+                    break  # Bullet can only hit one shield
+
     def run(self) -> None:
         """Start the game loop."""
         self.running = True
@@ -276,6 +312,7 @@ class Game:
                 bullet.update()
 
             # Check for collisions
+            self.check_invader_bullet_shield_collisions()
             self.check_player_bullet_collisions()
 
             if self.check_invader_bullet_collisions():

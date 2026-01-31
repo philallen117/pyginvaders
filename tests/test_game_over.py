@@ -29,8 +29,8 @@ def test_game_over_when_player_hit_by_invader_bullet():
         game.game_lost = True
 
     # Verify game is in lost state
-    assert game.game_lost is True
-    assert bullet.active is False
+    assert game.game_lost
+    assert not bullet.active
 
 
 def test_collision_detection():
