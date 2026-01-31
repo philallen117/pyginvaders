@@ -5,11 +5,12 @@
         "blit",
         "Cypert",
         "docstrings",
+        "pycache",
         "pygame",
         "pyginvaders",
-        "pytest",
-        "pycache",
         "pyproject",
+        "pytest",
+        "Pythonic",
         "venv"
     ],
     "ignorePaths": [

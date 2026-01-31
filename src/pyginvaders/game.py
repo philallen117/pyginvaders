@@ -2,6 +2,7 @@
 
 import pygame
 
+from pyginvaders.config import FPS, SCREEN_HEIGHT, SCREEN_WIDTH, PLAYER_WIDTH
 from pyginvaders.player import Player
 
 
@@ -11,16 +12,14 @@ class Game:
     def __init__(self) -> None:
         """Initialize the game."""
         pygame.init()
-        self.width = 800
-        self.height = 600
-        self.screen = pygame.display.set_mode((self.width, self.height))
+        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         pygame.display.set_caption("PygInvaders")
         self.clock = pygame.time.Clock()
         self.running = False
 
         # Create player at bottom center of screen
-        player_x = self.width // 2 - 25  # Center the 50-wide player
-        player_y = self.height - 60  # 60 pixels from bottom
+        player_x = SCREEN_WIDTH // 2 - PLAYER_WIDTH // 2
+        player_y = SCREEN_HEIGHT - 60  # 60 pixels from bottom
         self.player = Player(player_x, player_y)
 
     def run(self) -> None:
@@ -40,7 +39,7 @@ class Game:
                 self.player.move_right()
 
             # Keep player within bounds
-            self.player.clamp_to_bounds(self.width)
+            self.player.clamp_to_bounds()
 
             # Fill screen with black
             self.screen.fill((0, 0, 0))
@@ -52,7 +51,7 @@ class Game:
             pygame.display.flip()
 
             # Cap at 60 FPS
-            self.clock.tick(60)
+            self.clock.tick(FPS)
 
         # Clean up
         pygame.quit()
