@@ -12,11 +12,18 @@ class Invader:
         """Initialize the invader at the given position."""
         self.x = x
         self.y = y
-        self.alive = True
+
+    def update(self, direction: int, speed: int) -> None:
+        """Update the invader's position.
+
+        Args:
+            direction: Direction to move (1 for right, -1 for left)
+            speed: Number of pixels to move
+        """
+        self.x += direction * speed
 
     def draw(self, screen: pygame.Surface) -> None:
-        """Draw the invader on the screen if alive."""
-        if self.alive:
-            pygame.draw.rect(
-                screen, INVADER_COLOR, (self.x, self.y, INVADER_WIDTH, INVADER_HEIGHT)
-            )
+        """Draw the invader on the screen."""
+        pygame.draw.rect(
+            screen, INVADER_COLOR, (self.x, self.y, INVADER_WIDTH, INVADER_HEIGHT)
+        )

@@ -5,11 +5,15 @@ import pygame
 from pyginvaders.config import (
     FPS,
     INVADER_COLS,
+    INVADER_DROP_DISTANCE,
+    INVADER_MOVE_DELAY,
     INVADER_ROWS,
     INVADER_SPACING_X,
     INVADER_SPACING_Y,
+    INVADER_SPEED_X,
     INVADER_START_X,
     INVADER_START_Y,
+    INVADER_WIDTH,
     PLAYER_BULLET_HEIGHT,
     PLAYER_BULLET_POOL_SIZE,
     PLAYER_BULLET_WIDTH,
@@ -49,6 +53,10 @@ class Game:
                 y = INVADER_START_Y + row * INVADER_SPACING_Y
                 self.invaders.append(Invader(x, y))
 
+        # Invader movement state
+        self.invader_direction = 1  # 1 for right, -1 for left
+        self.invader_move_counter = 0  # counts frames until next move
+
     def fire_bullet(self) -> None:
         """Fire a bullet from the player if one is available in the pool."""
         # Find first inactive bullet
@@ -85,6 +93,27 @@ class Game:
             # Update bullets
             for bullet in self.player_bullets:
                 bullet.update()
+
+            # Update invaders
+            self.invader_move_counter += 1
+            if self.invader_move_counter >= INVADER_MOVE_DELAY:
+                self.invader_move_counter = 0
+                for invader in self.invaders:
+                    invader.update(self.invader_direction, INVADER_SPEED_X)
+
+                # Check if any invader reached the edge
+                hit_edge = False
+                for invader in self.invaders:
+                    if invader.x <= 0 or invader.x + INVADER_WIDTH >= SCREEN_WIDTH:
+                        hit_edge = True
+                        break
+
+                # If edge was hit, undo horizontal move, drop, and reverse direction
+                if hit_edge:
+                    for invader in self.invaders:
+                        invader.x -= self.invader_direction * INVADER_SPEED_X
+                        invader.y += INVADER_DROP_DISTANCE
+                    self.invader_direction *= -1
 
             # Fill screen with black
             self.screen.fill((0, 0, 0))
