@@ -67,6 +67,15 @@ class Game:
         self.clock = pygame.time.Clock()
         self.running = False
 
+        # Initialize fonts (only needed once)
+        self.font = pygame.font.Font(None, SCORE_TEXT_FONT_POINT_SIZE)
+        self.game_over_font = pygame.font.Font(None, GAME_OVER_TEXT_FONT_POINT_SIZE)
+
+        # Initialize game state
+        self.reset_game()
+
+    def reset_game(self) -> None:
+        """Reset game state to starting conditions."""
         # Create player at bottom center of screen
         player_x = SCREEN_WIDTH // 2 - PLAYER_WIDTH // 2
         player_y = SCREEN_HEIGHT - 60  # 60 pixels from bottom
@@ -95,8 +104,6 @@ class Game:
 
         # Score
         self.score = 0
-        self.font = pygame.font.Font(None, SCORE_TEXT_FONT_POINT_SIZE)
-        self.game_over_font = pygame.font.Font(None, GAME_OVER_TEXT_FONT_POINT_SIZE)
 
         # Game state
         self.game_lost = False
@@ -162,20 +169,25 @@ class Game:
         # Render message text
         message_text = self.game_over_font.render(message, True, TEXT_COLOR)
         message_rect = message_text.get_rect(
-            center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 20)
+            center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 40)
         )
 
         # Render score text
         score_text = self.game_over_font.render(
             f"Score: {self.score}", True, TEXT_COLOR
         )
-        score_rect = score_text.get_rect(
-            center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 20)
+        score_rect = score_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
+
+        # Render restart prompt
+        restart_text = self.font.render("Press R to restart", True, TEXT_COLOR)
+        restart_rect = restart_text.get_rect(
+            center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 40)
         )
 
-        # Draw both texts
+        # Draw all texts
         self.screen.blit(message_text, message_rect)
         self.screen.blit(score_text, score_rect)
+        self.screen.blit(restart_text, restart_rect)
 
     def check_player_bullet_collisions(self) -> None:
         """Check for collisions between player bullets and invaders."""
@@ -226,6 +238,10 @@ class Game:
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
                         self.fire_bullet()
+                    elif event.key == pygame.K_r:
+                        # Restart the game if in game over or win state
+                        if self.game_lost or self.player_won:
+                            self.reset_game()
 
             # If game is lost, just draw game over screen and skip updates
             if self.game_lost:

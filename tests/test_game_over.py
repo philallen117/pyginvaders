@@ -1,7 +1,5 @@
 """Test for the game over collision scenario."""
 
-import pytest
-
 from pyginvaders.game import Game
 
 
