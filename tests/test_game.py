@@ -73,19 +73,19 @@ def test_multiple_fires():
 def test_rect_collision_overlapping():
     """Test that overlapping rectangles are detected."""
     # Rectangles that overlap
-    assert check_rect_collision(0, 0, 10, 10, 5, 5, 10, 10) is True
+    assert check_rect_collision((0, 0, 10, 10), (5, 5, 10, 10)) is True
 
 
 def test_rect_collision_no_overlap():
     """Test that non-overlapping rectangles are not detected."""
     # Rectangles that don't touch
-    assert check_rect_collision(0, 0, 10, 10, 20, 20, 10, 10) is False
+    assert check_rect_collision((0, 0, 10, 10), (20, 20, 10, 10)) is False
 
 
 def test_rect_collision_touching_edge():
     """Test that rectangles touching at edge are detected."""
     # Rectangles touching at edge
-    assert check_rect_collision(0, 0, 10, 10, 10, 0, 10, 10) is False
+    assert check_rect_collision((0, 0, 10, 10), (10, 0, 10, 10)) is False
 
 
 def test_bullet_kills_invader():
@@ -105,14 +105,8 @@ def test_bullet_kills_invader():
             continue
         for invader in game.invaders.copy():
             if check_rect_collision(
-                bullet.x,
-                bullet.y,
-                4,
-                20,
-                invader.x,
-                invader.y,
-                INVADER_WIDTH,
-                INVADER_HEIGHT,
+                (bullet.x, bullet.y, 4, 20),
+                (invader.x, invader.y, INVADER_WIDTH, INVADER_HEIGHT),
             ):
                 game.invaders.remove(invader)
                 bullet.deactivate()
@@ -146,14 +140,8 @@ def test_bullet_kills_at_most_one_invader():
             continue
         for invader in game.invaders.copy():
             if check_rect_collision(
-                bullet.x,
-                bullet.y,
-                4,
-                20,
-                invader.x,
-                invader.y,
-                INVADER_WIDTH,
-                INVADER_HEIGHT,
+                (bullet.x, bullet.y, 4, 20),
+                (invader.x, invader.y, INVADER_WIDTH, INVADER_HEIGHT),
             ):
                 game.invaders.remove(invader)
                 bullet.deactivate()
@@ -189,14 +177,8 @@ def test_multiple_bullets_kill_multiple_invaders():
             continue
         for invader in game.invaders.copy():
             if check_rect_collision(
-                bullet.x,
-                bullet.y,
-                4,
-                20,
-                invader.x,
-                invader.y,
-                INVADER_WIDTH,
-                INVADER_HEIGHT,
+                (bullet.x, bullet.y, 4, 20),
+                (invader.x, invader.y, INVADER_WIDTH, INVADER_HEIGHT),
             ):
                 game.invaders.remove(invader)
                 bullet.deactivate()

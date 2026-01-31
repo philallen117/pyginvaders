@@ -32,19 +32,19 @@ from pyginvaders.player_bullet import PlayerBullet
 
 
 def check_rect_collision(
-    x1: int, y1: int, w1: int, h1: int, x2: int, y2: int, w2: int, h2: int
+    rect1: tuple[int, int, int, int], rect2: tuple[int, int, int, int]
 ) -> bool:
     """Check if two rectangles collide using AABB collision detection.
 
     Args:
-        x1, y1: Top-left corner of first rectangle
-        w1, h1: Width and height of first rectangle
-        x2, y2: Top-left corner of second rectangle
-        w2, h2: Width and height of second rectangle
+        rect1: First rectangle as (x, y, width, height)
+        rect2: Second rectangle as (x, y, width, height)
 
     Returns:
         True if rectangles overlap, False otherwise
     """
+    x1, y1, w1, h1 = rect1
+    x2, y2, w2, h2 = rect2
     return x1 < x2 + w2 and x1 + w1 > x2 and y1 < y2 + h2 and y1 + h1 > y2
 
 
@@ -129,14 +129,8 @@ class Game:
                     invader
                 ) in self.invaders.copy():  # Copy to safely remove during iteration
                     if check_rect_collision(
-                        bullet.x,
-                        bullet.y,
-                        PLAYER_BULLET_WIDTH,
-                        PLAYER_BULLET_HEIGHT,
-                        invader.x,
-                        invader.y,
-                        INVADER_WIDTH,
-                        INVADER_HEIGHT,
+                        (bullet.x, bullet.y, PLAYER_BULLET_WIDTH, PLAYER_BULLET_HEIGHT),
+                        (invader.x, invader.y, INVADER_WIDTH, INVADER_HEIGHT),
                     ):
                         # Collision detected
                         self.invaders.remove(invader)

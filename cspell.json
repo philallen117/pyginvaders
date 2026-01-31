@@ -2,9 +2,11 @@
     "version": "0.2",
     "language": "en",
     "words": [
+        "AABB",
         "blit",
         "Cypert",
         "docstrings",
+        "ints",
         "pycache",
         "pygame",
         "pyginvaders",

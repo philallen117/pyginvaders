@@ -8,16 +8,24 @@ from pyginvaders.config import (
     PLAYER_BULLET_SPEED,
     PLAYER_BULLET_WIDTH,
 )
+from pyginvaders.game_object import GameObject
 
 
-class PlayerBullet:
+class PlayerBullet(GameObject):
     """Represents a bullet fired by the player."""
 
     def __init__(self) -> None:
         """Initialize an inactive bullet."""
-        self.x = 0
-        self.y = 0
+        super().__init__(0, 0)
         self.active = False
+
+    def get_rectangle(self) -> tuple[int, int, int, int]:
+        """Get the bullet's bounding rectangle.
+
+        Returns:
+            A tuple of (x, y, width, height)
+        """
+        return (self.x, self.y, PLAYER_BULLET_WIDTH, PLAYER_BULLET_HEIGHT)
 
     def activate(self, x: int, y: int) -> None:
         """Activate the bullet at the given position."""

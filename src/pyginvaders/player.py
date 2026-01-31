@@ -9,15 +9,23 @@ from pyginvaders.config import (
     PLAYER_WIDTH,
     SCREEN_WIDTH,
 )
+from pyginvaders.game_object import GameObject
 
 
-class Player:
+class Player(GameObject):
     """Represents the player's ship."""
 
     def __init__(self, x: int, y: int) -> None:
         """Initialize the player at the given position."""
-        self.x = x
-        self.y = y
+        super().__init__(x, y)
+
+    def get_rectangle(self) -> tuple[int, int, int, int]:
+        """Get the player's bounding rectangle.
+
+        Returns:
+            A tuple of (x, y, width, height)
+        """
+        return (self.x, self.y, PLAYER_WIDTH, PLAYER_HEIGHT)
 
     def move_left(self) -> None:
         """Move the player left."""
