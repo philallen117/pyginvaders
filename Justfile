@@ -1,15 +1,7 @@
 default:
     @just --list
 
-test: lint unittest
-
-unittest:
-    @echo "Running pytest ..."
-    @if command -v uv run pytest >/dev/null 2>&1; then \
-        uv run pytest -v; \
-    else \
-        echo "pytest not found"; \
-    fi
+test: lint typecheck unittest
 
 lint:
     @echo "Running flake8 ..."
@@ -17,6 +9,22 @@ lint:
         uv run flake8; \
     else \
         echo "flake8 not found"; \
+    fi
+
+typecheck:
+    @echo "Running pyrefly ..."
+    @if command -v uv run pyrefly >/dev/null 2>&1; then \
+        uv run pyrefly check .; \
+    else \
+        echo "pyrefly not found"; \
+    fi
+
+unittest:
+    @echo "Running pytest ..."
+    @if command -v uv run pytest >/dev/null 2>&1; then \
+        uv run pytest -v; \
+    else \
+        echo "pytest not found"; \
     fi
 
 install-dev:
